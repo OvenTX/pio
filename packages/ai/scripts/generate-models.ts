@@ -27,6 +27,15 @@ import {
 	validateGeneratedModelData,
 	validateModelDataDirectory,
 } from "./model-data.ts";
+import fetch from "node-fetch";
+import { HttpsProxyAgent } from "https-proxy-agent";
+
+const proxyUrl = process.env.https_proxy ?? process.env.HTTPS_PROXY ?? process.env.http_proxy ?? process.env.HTTP_PROXY;
+const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined;
+
+async function fetchWithProxy(input: URL | string, init?: RequestInit): Promise<Response> {
+	return fetch(input, { ...init, agent: proxyAgent });
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -947,7 +956,7 @@ function getModelsDevCost(cost: ModelsDevModel["cost"]): ModelCost {
 async function fetchNvidiaNimModelIds(): Promise<Map<string, string>> {
 	try {
 		console.log("Fetching models from NVIDIA NIM API...");
-		const response = await fetch(`${NVIDIA_BASE_URL}/models`);
+		const response = await fetchWithProxy(`${NVIDIA_BASE_URL}/models`);
 		if (!response.ok) throw new Error(`NVIDIA NIM API returned ${response.status}`);
 		const data = (await response.json()) as { data?: NvidiaNimModelListItem[] };
 		const modelIds = new Map<string, string>();
@@ -969,7 +978,7 @@ async function fetchNvidiaNimModelIds(): Promise<Map<string, string>> {
 async function fetchOpenRouterModels(): Promise<Model<any>[]> {
 	try {
 		console.log("Fetching models from OpenRouter API...");
-		const response = await fetch("https://openrouter.ai/api/v1/models");
+		const response = await fetchWithProxy("https://openrouter.ai/api/v1/models");
 		if (!response.ok) throw new Error(`OpenRouter API returned ${response.status}`);
 		const data = await response.json();
 
@@ -1031,7 +1040,7 @@ async function fetchOpenRouterModels(): Promise<Model<any>[]> {
 async function fetchAiGatewayModels(): Promise<Model<any>[]> {
 	try {
 		console.log("Fetching models from Vercel AI Gateway API...");
-		const response = await fetch(`${AI_GATEWAY_MODELS_URL}/models`);
+		const response = await fetchWithProxy(`${AI_GATEWAY_MODELS_URL}/models`);
 		if (!response.ok) throw new Error(`Vercel AI Gateway API returned ${response.status}`);
 		const data = await response.json();
 		const models: Model<any>[] = [];
@@ -1091,7 +1100,7 @@ async function fetchAiGatewayModels(): Promise<Model<any>[]> {
 async function loadModelsDevData(): Promise<Model<any>[]> {
 	try {
 		console.log("Fetching models from models.dev API...");
-		const response = await fetch("https://models.dev/api.json");
+		const response = await fetchWithProxy("https://models.dev/api.json");
 		if (!response.ok) throw new Error(`models.dev API returned ${response.status}`);
 		const data = (await response.json()) as ModelsDevCatalog;
 
