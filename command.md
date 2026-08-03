@@ -21,19 +21,6 @@
    ./packages/coding-agent/dist/cli.js --help
  ```
 
- ### 方式 3：npm link 创建全局 pi 命令
-
- ```bash
-   cd packages/coding-agent
-   npm link
- ```
-
- 之后任意位置都能用：
-
- ```bash
-   pi --help
- ```
-
  ### 方式 4：手动创建 symlink 到已有 PATH 目录
 
  ```bash
@@ -44,14 +31,14 @@
  或放到任意已在 PATH 的目录，比如 ~/.local/bin：
 
  ```bash
-   mkdir -p ~/.local/bin
-   ln -s "$PWD/packages/coding-agent/dist/cli.js" ~/.local/bin/pi
+   ln -s /Users/chenxiaoguang/Desktop/Code/github/pi/packages/coding-agent/dist/cli.js ~/.local/bin/pio
+   ln -s /home/ubuntu/codetest/github/pi/packages/coding-agent/dist/cli.js ~/.local/bin/pio
  ```
 
  然后：
 
  ```bash
-   pi --help
+   pio --help
  ```
 
  ### 方式 5：构建独立发布包
@@ -70,6 +57,7 @@
  ```
 
  直接把对应目录加到 PATH 即可。
+ 或者将pi-local-release目录下的压缩包，拷贝到其他设备上解压运行。
 
  常用相关命令：
 
