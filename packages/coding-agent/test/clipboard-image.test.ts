@@ -24,6 +24,23 @@ vi.mock("../src/utils/clipboard-native.js", () => {
 	};
 });
 
+// add by cxg, start: isWSL() 会回退读取真实 /proc/version，WSL2 开发机上匹配 microsoft|wsl 导致测试误走 WSL 分支，mock fs 固定返回值使测试与宿主机解耦
+// isWSL() falls back to reading /proc/version; pin it so tests don't depend on
+// the host kernel (e.g. WSL2 dev machines match /microsoft|wsl/i).
+vi.mock("fs", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("fs")>();
+	return {
+		...actual,
+		readFileSync: ((p: unknown, options?: unknown) => {
+			if (p === "/proc/version") {
+				return "Linux version 6.1.0-mock (builder@mock) #1 SMP";
+			}
+			return actual.readFileSync(p as string, options as BufferEncoding);
+		}) as typeof actual.readFileSync,
+	};
+});
+// add by cxg, end
+
 function spawnOk(stdout: Buffer): SpawnSyncReturns<Buffer> {
 	return {
 		pid: 123,
