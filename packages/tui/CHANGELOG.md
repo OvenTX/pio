@@ -18,6 +18,9 @@
 - Added alternate-screen `VStack`, `HStack`, and nested `ScrollView` layouts with constrained sizing, sticky regions, and pointer-targeted scrolling.
 - Added edge auto-scrolling for alternate-screen drag selection across off-screen scroll-view content.
 - Added proportional scrollbars with mouse dragging, Home/End document navigation, transient `auto` mode, and an `always` mode that reserves the rightmost column; scrollbar modes can be changed at runtime.
+<!-- add by cxg, start: 记录新增 ViewportTUI.setWheelScrollLines API -->
+- Added `ViewportTUI.setWheelScrollLines()` to change alternate-screen mouse-wheel scroll distance at runtime.
+<!-- add by cxg, end -->
 - Added page scrolling and OSC 133 semantic prompt navigation to the alternate-screen viewport.
 
 ## [0.83.0] - 2026-07-29

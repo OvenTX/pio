@@ -313,6 +313,9 @@ export const VIEWPORT_TUI = Symbol.for("@earendil-works/pi-tui/viewport");
 export interface ViewportTUI extends TUI {
 	readonly [VIEWPORT_TUI]: true;
 	setLayoutRoot(component: Component | undefined): void;
+	// add by cxg, start: ViewportTUI 接口新增 setWheelScrollLines，支持运行时修改滚轮滚动行数
+	setWheelScrollLines(lines: number): void;
+	// add by cxg, end
 }
 
 export function isViewportTUI(tui: TUI): tui is ViewportTUI {

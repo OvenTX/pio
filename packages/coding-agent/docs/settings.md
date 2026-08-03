@@ -67,6 +67,9 @@ Use `/trust` in interactive mode to save a project trust decision for future ses
 | `showHardwareCursor` | boolean | `false` | Show the terminal cursor while TUI positions it for IME support |
 | `uiMode` | string | `"regular"` | Interactive UI mode: `"regular"` or experimental `"fullscreen"`. Changes from `/settings` apply after restart; `--ui-mode` overrides this setting for one run |
 | `fullscreenScrollbar` | string | `"auto"` | Fullscreen transcript scrollbar: `"auto"` shows it temporarily while scrolling, `"always"` reserves the rightmost column and keeps it visible, and `"hidden"` hides it. Has no effect in regular UI mode |
+<!-- add by cxg, start: 文档补充 wheelScrollLines 设置说明 -->
+| `wheelScrollLines` | number | `1` | Lines scrolled per mouse-wheel event in fullscreen UI mode. Has no effect in regular UI mode |
+<!-- add by cxg, end -->
 
 For VS Code, include `--wait` so pi resumes after the editor exits:
 

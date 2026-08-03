@@ -334,13 +334,23 @@ interface InteractiveTuiOptions {
 	showHardwareCursor: boolean;
 	logDirectory: string;
 	terminal?: Terminal;
+	// add by cxg, start: createInteractiveTui 新增 wheelScrollLines 选项，透传给全屏 TUI
+	/** Lines scrolled per mouse-wheel event (fullscreen UI mode only). */
+	wheelScrollLines?: number;
+	// add by cxg, end
 }
 
 /** Composition root for selecting the interactive terminal renderer. */
 export function createInteractiveTui(options: InteractiveTuiOptions): TUI {
 	const terminal = options.terminal ?? new ProcessTerminal();
 	if (options.uiMode === "fullscreen") {
-		return new TuiAltScreen(terminal, options.showHardwareCursor, options.logDirectory, { openUrl: openBrowser });
+		// modify by cxg, start: TuiAltScreen 构造参数透传 wheelScrollLines
+		// return new TuiAltScreen(terminal, options.showHardwareCursor, options.logDirectory, { openUrl: openBrowser });
+		return new TuiAltScreen(terminal, options.showHardwareCursor, options.logDirectory, {
+			openUrl: openBrowser,
+			wheelScrollLines: options.wheelScrollLines,
+		});
+		// modify by cxg, end
 	}
 	return new TuiMainScreen(terminal, options.showHardwareCursor, options.logDirectory);
 }
@@ -489,6 +499,9 @@ export class InteractiveMode {
 			uiMode,
 			showHardwareCursor: this.settingsManager.getShowHardwareCursor(),
 			logDirectory: getAgentDir(),
+			// add by cxg, start: 从设置读取 wheelScrollLines 传给 TUI
+			wheelScrollLines: this.settingsManager.getWheelScrollLines(),
+			// add by cxg, end
 		});
 		this.ui.setClearOnShrink(this.settingsManager.getClearOnShrink());
 		this.headerContainer = new Container();
@@ -4244,6 +4257,9 @@ export class InteractiveMode {
 					showTerminalProgress: this.settingsManager.getShowTerminalProgress(),
 					uiMode: this.settingsManager.getUiMode(),
 					fullscreenScrollbar: this.settingsManager.getFullscreenScrollbar(),
+					// add by cxg, start: 设置页传入当前 wheelScrollLines
+					wheelScrollLines: this.settingsManager.getWheelScrollLines(),
+					// add by cxg, end
 					warnings: this.settingsManager.getWarnings(),
 				},
 				{
@@ -4392,6 +4408,12 @@ export class InteractiveMode {
 						this.settingsManager.setFullscreenScrollbar(mode);
 						this.applyFullscreenScrollbarSetting();
 					},
+					// add by cxg, start: 滚轮行数变更：写入设置并实时应用到全屏 TUI
+					onWheelScrollLinesChange: (lines) => {
+						this.settingsManager.setWheelScrollLines(lines);
+						if (TuiLayouts.isViewportTUI(this.ui)) this.ui.setWheelScrollLines(lines);
+					},
+					// add by cxg, end
 					onWarningsChange: (warnings) => {
 						this.settingsManager.setWarnings(warnings);
 					},

@@ -82,6 +82,9 @@ export interface SettingsConfig {
 	showTerminalProgress: boolean;
 	uiMode: UiMode;
 	fullscreenScrollbar: ScrollViewScrollbar;
+	// add by cxg, start: 设置页配置新增 wheelScrollLines 项
+	wheelScrollLines: number;
+	// add by cxg, end
 	warnings: WarningSettings;
 }
 
@@ -115,6 +118,9 @@ export interface SettingsCallbacks {
 	onShowTerminalProgressChange: (enabled: boolean) => void;
 	onUiModeChange: (mode: UiMode) => void;
 	onFullscreenScrollbarChange: (mode: ScrollViewScrollbar) => void;
+	// add by cxg, start: 新增 wheelScrollLines 变更回调
+	onWheelScrollLinesChange: (lines: number) => void;
+	// add by cxg, end
 	onWarningsChange: (warnings: WarningSettings) => void;
 	onCancel: () => void;
 }
@@ -629,6 +635,15 @@ export class SettingsSelectorComponent extends Container {
 				currentValue: config.fullscreenScrollbar,
 				values: ["auto", "always", "hidden"],
 			},
+			// add by cxg, start: 设置列表新增滚轮行数选项（预设 1/2/3/5/8）
+			{
+				id: "wheel-scroll-lines",
+				label: "Wheel scroll lines",
+				description: "Lines scrolled per mouse-wheel event in fullscreen mode",
+				currentValue: String(config.wheelScrollLines),
+				values: ["1", "2", "3", "5", "8"],
+			},
+			// add by cxg, end
 			{
 				id: "theme",
 				label: "Theme",
@@ -844,6 +859,11 @@ export class SettingsSelectorComponent extends Container {
 					case "fullscreen-scrollbar":
 						callbacks.onFullscreenScrollbarChange(newValue as ScrollViewScrollbar);
 						break;
+					// add by cxg, start: 处理滚轮行数选项变更
+					case "wheel-scroll-lines":
+						callbacks.onWheelScrollLinesChange(parseInt(newValue, 10));
+						break;
+					// add by cxg, end
 					case "theme":
 						callbacks.onThemeChange(newValue);
 						break;

@@ -110,7 +110,10 @@ export class TuiAltScreen extends TuiBase implements ViewportTUI {
 	private scrollbarHover?: ScrollView;
 	private pressedUrl?: string;
 	private selectionDragged = false;
-	private readonly wheelScrollLines: number;
+	// modify by cxg, start: wheelScrollLines 需支持运行时修改，去掉 readonly
+	// private readonly wheelScrollLines: number;
+	private wheelScrollLines: number;
+	// modify by cxg, end
 	private readonly mouseEnabled: boolean;
 	private readonly openUrl?: (url: string) => void;
 
@@ -142,6 +145,12 @@ export class TuiAltScreen extends TuiBase implements ViewportTUI {
 	get isFollowingOutput(): boolean {
 		return this.getPrimaryScrollView().isFollowingEnd;
 	}
+
+	// add by cxg, start: 新增 setWheelScrollLines 方法，运行时修改滚轮每次滚动行数（钳制为正整数）
+	setWheelScrollLines(lines: number): void {
+		this.wheelScrollLines = Math.max(1, Math.floor(lines));
+	}
+	// add by cxg, end
 
 	setLayoutRoot(component: Component | undefined): void {
 		if (this.layoutRoot === component) return;

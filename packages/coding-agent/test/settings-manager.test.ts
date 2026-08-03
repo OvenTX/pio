@@ -420,6 +420,21 @@ describe("SettingsManager", () => {
 		});
 	});
 
+	// add by cxg, start: 覆盖 wheelScrollLines 钳制逻辑（默认值/小数取整/零值/非法类型）
+	it("clamps wheelScrollLines to a positive integer", () => {
+		expect(SettingsManager.create(projectDir, agentDir).getWheelScrollLines()).toBe(1);
+
+		writeFileSync(join(agentDir, "settings.json"), JSON.stringify({ wheelScrollLines: 3.7 }));
+		expect(SettingsManager.create(projectDir, agentDir).getWheelScrollLines()).toBe(3);
+
+		writeFileSync(join(agentDir, "settings.json"), JSON.stringify({ wheelScrollLines: 0 }));
+		expect(SettingsManager.create(projectDir, agentDir).getWheelScrollLines()).toBe(1);
+
+		writeFileSync(join(agentDir, "settings.json"), JSON.stringify({ wheelScrollLines: "fast" }));
+		expect(SettingsManager.create(projectDir, agentDir).getWheelScrollLines()).toBe(1);
+	});
+	// add by cxg, end
+
 	it("validates and persists the fullscreen scrollbar mode", async () => {
 		const manager = SettingsManager.create(projectDir, agentDir);
 		expect(manager.getFullscreenScrollbar()).toBe("auto");

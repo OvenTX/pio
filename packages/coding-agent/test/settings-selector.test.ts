@@ -34,4 +34,26 @@ describe("SettingsSelectorComponent", () => {
 
 		expect(onChange.mock.calls.flat()).toEqual(["always", "hidden", "auto"]);
 	});
+
+	// add by cxg, start: 覆盖设置页滚轮行数选项的循环切换行为
+	it("cycles through wheel scroll line presets", () => {
+		const onChange = vi.fn();
+		const selector = new SettingsSelectorComponent(
+			{
+				wheelScrollLines: 1,
+				warnings: {},
+				availableThinkingLevels: [],
+				availableThemes: [],
+			} as unknown as SettingsConfig,
+			{ onWheelScrollLinesChange: onChange } as unknown as SettingsCallbacks,
+		);
+		const settingsList = selector.getSettingsList();
+
+		for (const character of "Wheel scroll lines") settingsList.handleInput(character);
+		settingsList.handleInput("\r");
+		settingsList.handleInput("\r");
+
+		expect(onChange.mock.calls.flat()).toEqual([2, 3]);
+	});
+	// add by cxg, end
 });

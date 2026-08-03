@@ -131,6 +131,9 @@ export interface Settings {
 	websocketConnectTimeoutMs?: number; // WebSocket connect/open handshake timeout in milliseconds; 0 disables it
 	uiMode?: UiMode; // default: "regular"
 	fullscreenScrollbar?: ScrollViewScrollbar; // default: "auto"; no effect in regular UI mode
+	// add by cxg, start: 新增 wheelScrollLines 设置项（全屏模式滚轮每次滚动行数）
+	wheelScrollLines?: number; // Lines scrolled per mouse-wheel event in fullscreen UI mode (default: 1)
+	// add by cxg, end
 }
 
 /** Deep merge settings: project/overrides take precedence, nested objects merge recursively */
@@ -1145,6 +1148,20 @@ export class SettingsManager {
 		this.markModified("fullscreenScrollbar");
 		this.save();
 	}
+
+	// add by cxg, start: 新增 wheelScrollLines 读写方法，读取时钳制为正整数
+	getWheelScrollLines(): number {
+		const lines = this.settings.wheelScrollLines;
+		if (typeof lines !== "number" || !Number.isFinite(lines)) return 1;
+		return Math.max(1, Math.floor(lines));
+	}
+
+	setWheelScrollLines(lines: number): void {
+		this.globalSettings.wheelScrollLines = Math.max(1, Math.floor(lines));
+		this.markModified("wheelScrollLines");
+		this.save();
+	}
+	// add by cxg, end
 
 	getImageAutoResize(): boolean {
 		return this.settings.images?.autoResize ?? true;
