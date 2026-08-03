@@ -71,12 +71,12 @@
 		"syntaxPunctuation": "#D4D4D4",
 
 		"thinkingOff": "darkGray",
-		"thinkingMinimal": "#6e6e6e",
+		"thinkingMinimal": "#5f87af",
 		"thinkingLow": "#5f87af",
-		"thinkingMedium": "#81a2be",
-		"thinkingHigh": "#b294bb",
-		"thinkingXhigh": "#d183e8",
-		"thinkingMax": "#ff5fff",
+		"thinkingMedium": "#5f87af",
+		"thinkingHigh": "#5f87af",
+		"thinkingXhigh": "#5f87af",
+		"thinkingMax": "#5f87af",
 
 		"bashMode": "green"
 	},
