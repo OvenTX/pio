@@ -30,7 +30,10 @@ type AuthFileReadState = {
 
 let sharedAuthFileReadState: { authPath: string; readState: AuthFileReadState } | undefined;
 
-function getFileRevision(path: string): string | undefined {
+// modify by cxg, start: 导出 getFileRevision 供 FileModelsStore 做读缓存的 revision 校验
+// function getFileRevision(path: string): string | undefined {
+export function getFileRevision(path: string): string | undefined {
+	// modify by cxg, end
 	try {
 		const stats = statSync(path, { bigint: true });
 		return `${stats.dev}:${stats.ino}:${stats.size}:${stats.mtimeNs}:${stats.ctimeNs}`;
