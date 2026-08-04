@@ -2,8 +2,33 @@ import { Box, type Component, Container, getCapabilities, Image, Spacer, Text, t
 import type { ToolDefinition, ToolRenderContext } from "../../../core/extensions/types.ts";
 import { createAllToolDefinitions, type ToolName } from "../../../core/tools/index.ts";
 import { getTextOutput as getRenderedTextOutput } from "../../../core/tools/render-utils.ts";
+// add by cxg, start: status glyph prefix needs stripAnsi to find first content line
+import { stripAnsi } from "../../../utils/ansi.ts";
+// add by cxg, end
 import { convertToPng } from "../../../utils/image-convert.ts";
 import { theme } from "../theme/theme.ts";
+
+// add by cxg, start: wrap tool call render with pending/success/error status circle
+/** Prefix the first content line with a status glyph (○ pending / ● done). */
+function withStatusPrefix(status: string, child: Component): Component {
+	const pad = "  ";
+	return {
+		render(width: number): string[] {
+			const innerWidth = Math.max(1, width - pad.length);
+			const lines = child.render(innerWidth);
+			if (lines.length === 0) {
+				return [];
+			}
+			const first = lines.findIndex((line) => stripAnsi(line).trim().length > 0);
+			const target = first === -1 ? 0 : first;
+			return lines.map((line, i) => (i === target ? `${status} ${line}` : `${pad}${line}`));
+		},
+		invalidate() {
+			child.invalidate?.();
+		},
+	};
+}
+// add by cxg, end
 
 export interface ToolExecutionOptions {
 	showImages?: boolean;
@@ -250,12 +275,27 @@ export class ToolExecutionComponent extends Container {
 		return super.render(width);
 	}
 
+	// add by cxg, start: map tool lifecycle to hollow/solid status circle colors
+	private statusGlyph(): string {
+		if (this.isPartial) {
+			return theme.fg("muted", "○");
+		}
+		if (this.result?.isError) {
+			return theme.fg("error", "●");
+		}
+		return theme.fg("success", "●");
+	}
+	// add by cxg, end
+
 	private updateDisplay(): void {
 		const bgFn = this.isPartial
 			? (text: string) => theme.bg("toolPendingBg", text)
 			: this.result?.isError
 				? (text: string) => theme.bg("toolErrorBg", text)
 				: (text: string) => theme.bg("toolSuccessBg", text);
+		// add by cxg, start: compute status glyph once per redraw
+		const status = this.statusGlyph();
+		// add by cxg, end
 
 		let hasContent = false;
 		this.hideComponent = false;
@@ -268,17 +308,26 @@ export class ToolExecutionComponent extends Container {
 
 			const callRenderer = this.getCallRenderer();
 			if (!callRenderer) {
-				renderContainer.addChild(this.createCallFallback());
+				// modify by cxg, start: prefix fallback tool title with status circle
+				// renderContainer.addChild(this.createCallFallback());
+				renderContainer.addChild(withStatusPrefix(status, this.createCallFallback()));
+				// modify by cxg, end
 				hasContent = true;
 			} else {
 				try {
 					const component = callRenderer(this.args, theme, this.getRenderContext(this.callRendererComponent));
 					this.callRendererComponent = component;
-					renderContainer.addChild(component);
+					// modify by cxg, start: prefix tool call renderer with status circle
+					// renderContainer.addChild(component);
+					renderContainer.addChild(withStatusPrefix(status, component));
+					// modify by cxg, end
 					hasContent = true;
 				} catch {
 					this.callRendererComponent = undefined;
-					renderContainer.addChild(this.createCallFallback());
+					// modify by cxg, start: prefix error-fallback tool title with status circle
+					// renderContainer.addChild(this.createCallFallback());
+					renderContainer.addChild(withStatusPrefix(status, this.createCallFallback()));
+					// modify by cxg, end
 					hasContent = true;
 				}
 			}
@@ -363,7 +412,10 @@ export class ToolExecutionComponent extends Container {
 	}
 
 	private formatToolExecution(): string {
-		let text = theme.fg("toolTitle", theme.bold(this.toolName));
+		// modify by cxg, start: include status circle in definition-less fallback title
+		// let text = theme.fg("toolTitle", theme.bold(this.toolName));
+		let text = `${this.statusGlyph()} ${theme.fg("toolTitle", theme.bold(this.toolName))}`;
+		// modify by cxg, end
 		const content = JSON.stringify(this.args, null, 2);
 		if (content) {
 			text += `\n\n${content}`;

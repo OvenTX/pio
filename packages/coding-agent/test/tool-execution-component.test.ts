@@ -506,6 +506,47 @@ describe("ToolExecutionComponent parity", () => {
 		});
 	}
 
+	// add by cxg, start: regression for tool call status circle glyphs
+	test("shows hollow/solid status glyphs for pending, success, and error", () => {
+		const toolDefinition: ToolDefinition = {
+			...createBaseToolDefinition(),
+			renderCall: () => new Text("custom call", 0, 0),
+		};
+
+		const component = new ToolExecutionComponent(
+			"custom_tool",
+			"tool-status-glyph",
+			{},
+			{},
+			toolDefinition,
+			createFakeTui(),
+			process.cwd(),
+		);
+
+		expect(stripAnsi(component.render(120).join("\n"))).toContain("○ custom call");
+
+		component.updateResult(
+			{
+				content: [{ type: "text", text: "done" }],
+				details: {},
+				isError: false,
+			},
+			false,
+		);
+		expect(stripAnsi(component.render(120).join("\n"))).toContain("● custom call");
+
+		component.updateResult(
+			{
+				content: [{ type: "text", text: "boom" }],
+				details: {},
+				isError: true,
+			},
+			false,
+		);
+		expect(stripAnsi(component.render(120).join("\n"))).toContain("● custom call");
+	});
+	// add by cxg, end
+
 	for (const scenario of [
 		{ title: "SKILL.md", path: join(process.cwd(), "attio", "SKILL.md"), compact: "[skill] attio:120-329" },
 		{ title: "Pi documentation", path: getReadmePath(), compact: "read docs README.md:120-329" },
